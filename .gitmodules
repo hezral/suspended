@@ -1,3 +1,3 @@
 [submodule "xsuspender"]
-	path = subproject\subxsuspender
+	path = subprojects\subxsuspender
 	url = https://github.com/kernc/xsuspender
