@@ -1,0 +1,7 @@
+data/com.github.hezral.suspended.desktop.in
+data/com.github.hezral.suspended.appdata.xml.in
+data/com.github.hezral.suspended.gschema.xml
+src/window.ui
+src/main.py
+src/window.py
+
