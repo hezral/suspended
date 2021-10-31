@@ -1,9 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=XSuspender
-Comment=Automatically suspend inactive windows
-TryExec=xsuspender
-Exec=xsuspender
-Icon=preferences-system-windows
-NoDisplay=false
-Hidden=true
