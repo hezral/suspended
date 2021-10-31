@@ -8,6 +8,17 @@ project('suspended',
 i18n = import('i18n')
 
 
+# cmake = import('cmake')
+# # Configure the CMake project
+# xsuspender_proj = cmake.subproject('xsuspender')
+# # Fetch the dependency object
+# xsuspender_lib = sub_proj.dependency('xsuspender_lib')
+
+pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
+rdnn = meson.project_name().split('.')
+project_domain = '.'.join([rdnn[0],rdnn[1],rdnn[2]])
+project_short_name = rdnn[3]
+moduledir = join_paths(pkgdatadir, project_short_name)
 
 subdir('data')
 subdir('src')
