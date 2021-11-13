@@ -1,183 +1,73 @@
 /*
-   Copyright 2020 Adi Hezral (hezral@gmail.com) (https://github.com/hezral)
-
-   This file is part of Ghoster ("Application").
-
-    The Application is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    The Application is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this Application.  If not, see <http://www.gnu.org/licenses/>.
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Adi Hezral <hezral@gmail.com>
 */
 
-/* -- colors -- */
-/* ------------------------------ */
-@define-color shaded_dark shade(@theme_base_color, 0.87);
-@define-color shaded_darker shade(@theme_base_color, 0.85);
-@define-color shaded_base shade(#6A0CAB, 0.98);
-@define-color popup shade(@theme_base_color, 0.98);
 
-*:backdrop {
-    color: rgba(255, 255, 255, 0.5);
+list {
+    border-radius: 3px;
 }
 
-/* ------------------------------ */
-
-
-/* -- headerbar -- */
-/* ------------------------------ */
-.header-label {
-    font-size: larger;
-    font-weight: bold;
+list > row {
+    border-bottom-style: solid;
+    border-bottom-color: @menu_separator;
+    border-bottom-width: 1px;
 }
 
-headerbar {
-    padding-left: 8px;
-    padding-right: 12px;
-    padding-top: 4px;
-}
-
-headerbar, .viewswitch {
-    color: white;
-}
-/* ------------------------------ */
-
-
-/* -- stack -- */
-/* ------------------------------ */
-stack {
-    border-bottom-right-radius: 4px;
-    border-bottom-left-radius: 4px;
-}
-/* ------------------------------ */
-
-
-/* -- settings-view -- */
-/* ------------------------------ */
-.stack-settings, .headerbar-settings {
-    background-color: @shaded_dark;
-}
-
-.settings-frame {
-    border-radius: 4px;
-    background-color: @shaded_darker;
-}
-
-.settings-sub-label {
-    font-style: italic;
-    font-size: 0.9em;
-    color: gray;
-}
-/* ------------------------------ */
-
-
-
-/* ------------------------------ */
-
-.app-container, .app-container:selected {
-    box-shadow: none;
-    border: none;
-}
-
-/* .app-container:dir(ltr) {
-    animation: crossfader 1s ease-in-out forwards;
-} */
-
-/* .app-container:hover {
-    -gtk-icon-effect: highlight;
-} */
-
-.app-container:active {
-    opacity: 0.8;
-}
-
-
-window, stack, headerbar {
-    background-color: #6A0CAB;
-}
- 
-headerbar {
-    box-shadow:
-        1px 0 rgba(255,255,255,0.12) inset,
-        -1px 0 rgba(255,255,255,0.12) inset,
-        0 1px rgba(255,255,255,0.2) inset;
-}
-
-window, stack#main-stack {
-    box-shadow:
-        1px 0 rgba(255,255,255,0.12) inset,
-        -1px 0 rgba(255,255,255,0.12) inset,
-        0 -1px rgba(255,255,255,0.08) inset;
-}
-
-box#workspace-area {
-    box-shadow:
-        0 0 0 1px rgba(0,0,0,0.12),
-        0 3px 6px  rgba(0,0,0,0.16),
-        0 3px 6px  rgba(0,0,0,0.23),
-        0 14px 28px  rgba(0,0,0,0);
-    border-radius: 4px;
-    /* animation: crossfader 1s ease-in-out forwards; */
-}
-
-/* box#workspace-area:focus {
-    animation: crossfader 1s ease-in-out forwards;
-} */
-
-
-@keyframes crossfader {
-        0% { opacity: 0; } 
-        03.33% { opacity: 0; }
-        06.66% { opacity: 0; }
-        09.99% { opacity: 0; }
-        13.33% { opacity: 0; }
-        16.65% { opacity: 0.5; }
-        100% { opacity: 1; }	
-}
-
-.workspaces-switcher > button {
-    border-style: none;
-    box-shadow: none;
+list > row:selected {
+    border-left-style: solid;
+    border-left-color: @accent_color_500;
+    border-left-width: 6px;
     background-color: transparent;
-    opacity: 0.5;
-}
-    
-.workspaces-switcher > button:checked {
-    opacity: 1;
 }
 
-.workspaces-switcher > button:hover {
-    opacity: 0.8;
-}
-
-.workspaces-switcher:backdrop {
-    opacity: 0.7;
-}
-
-label#workspace-name {
+label#listboxrow-header {
     font-weight: bold;
 }
 
-/* grid#workspace-box {
-    transition: all 750ms ease-in-out;
-} */
+grid#listboxrow-header {
+    background-color: rgba(0,0,0,0.04);
+}
 
+grid#app-list-item-top {
+    padding: 6px;
+}
 
-/* decoration:backdrop {
-    box-shadow:
-    0 0 0 1px rgba(0,0,0,0.6),
-    0 3px 6px  rgba(0,0,0,0.4),
-    0 3px 6px  rgba(0,0,0,0.5),
-    0 14px 28px  rgba(0,0,0,0);
-} */
+grid#app-list-item-bottom {
+    padding: 10px;
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-top-color: alpha(@menu_separator, 0.75);
+    background-color: rgba(0,0,0,0.08);
+}
 
+scrolledwindow {
+    border-radius: 4px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: alpha(@menu_separator, 0.9);
+} 
 
-/* -- workspaces-view -- */
-/* ------------------------------ */
+scrolledwindow > undershoot.top {
+    background-blend-mode: normal;
+    background-clip: border-box;
+    background-color: rgba(0,0,0,0);
+    background-image: linear-gradient(@theme_bg_color 0, alpha(@theme_bg_color, 0) 50%);
+    background-origin: padding-box;
+    background-position: left top;
+    background-repeat: repeat;
+    background-size: auto;
+}
+
+scrolledwindow > undershoot.bottom {
+    background-blend-mode: normal;
+    background-clip: border-box;
+    background-color: rgba(0,0,0,0);
+    background-image: linear-gradient(alpha(@theme_bg_color, 0) 50%, @theme_bg_color 100%);
+    background-origin: padding-box;
+    background-position: left top;
+    background-repeat: repeat;
+    background-size: auto;
+}
+
+.miniswitch slider {min-height: 16px; min-width: 16px;}

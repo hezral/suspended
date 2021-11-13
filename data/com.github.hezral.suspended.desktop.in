@@ -1,8 +1,8 @@
 [Desktop Entry]
-Name=suspended
-Exec=suspended
+Name=Suspended
+Exec=com.github.hezral.suspended
 Icon=com.github.hezral.suspended
 Terminal=false
 Type=Application
-Categories=GTK;
+Categories=Utility;System;
 StartupNotify=true

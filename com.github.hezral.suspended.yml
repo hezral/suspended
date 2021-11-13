@@ -2,16 +2,74 @@ app-id: com.github.hezral.suspended
 runtime: io.elementary.Platform
 runtime-version: '6'
 sdk: io.elementary.Sdk
-command: suspended
+command: com.github.hezral.suspended
 appstream-compose: false
 finish-args:
   - --socket=wayland
   - --socket=fallback-x11
-  - --share=network
+  
+  # read-only access to get installed app and icons based on .desktop files
   - --filesystem=host:ro
-  # needed for perfers-color-scheme
-  - --system-talk-name=org.freedesktop.Accounts
+  - --filesystem=xdg-data:ro
+
+  # read-only access to get installed system flatpak apps based on .desktop files
+  - --filesystem=/var/lib/flatpak/app:ro  #required as .desktop files in share/applications are symlinked to this dir
+  - --filesystem=/var/lib/flatpak/exports/share:ro
+  - --filesystem=/var/lib/flatpak/exports/share/applications:ro
+  - --filesystem=/var/lib/flatpak/exports/share/icons:ro
+
+  # read-only access to get installed snap apps based on .desktop files 
+  - --filesystem=/var/lib/snapd/desktop:ro
+
+  # read-only access to get installed user flatpak apps based on .desktop files
+  - --filesystem=~/.local/share/flatpak/exports/share/applications:ro
+  - --filesystem=~/.local/share/flatpak/exports/share/icons:ro
+  - --filesystem=xdg-data/flatpak/app:ro
+  - --filesystem=xdg-data/flatpak/exports/share/applications:ro
+  - --filesystem=xdg-data/flatpak/exports/share/icons:ro
+
+  # read-only access to get installed system legacy apps based on .desktop files
+  - --filesystem=/usr/share/applications:ro
+  - --filesystem=/usr/share/icons:ro
+  - --filesystem=/usr/share/pixmaps:ro
+
+  # read-only access to get installed user legacy apps based on .desktop files
+  - --filesystem=~/.local/share/applications:ro
+  - --filesystem=~/.local/share/icons:ro
+
+  # - --filesystem=xdg-data/applications:ro
+  # - --filesystem=xdg-data/flatpak/exports/share:ro
+  # - --filesystem=xdg-data/icons:ro
+  # - --filesystem=xdg-data/share/applications:ro
+  # - --filesystem=xdg-data/share/icons:ro
+  
+  # access host /proc to read-only processes stat file 
+  # see utils.py get_flatpak_pid, check_stat_file, read_stat_file, parse_proc_state for usage details
+  # host command used: cat, ls, grep, flatpak ps, kill -STOP/CONT
+  - --talk-name=org.freedesktop.Flatpak
+  - --filesystem=/proc/*:ro
+
+    # talking to upower to get battery charging state
+  - --socket=system-bus
+  - --talk-name=org.freedesktop.UPower
+
 modules:
+  - name: chardet
+    buildsystem: simple
+    build-options:
+      build-args:
+        - --share=network
+    build-commands:
+      - "pip3 install --prefix=${FLATPAK_DEST} chardet"
+
+  - name: pydbus
+    buildsystem: simple
+    build-options:
+      build-args:
+        - --share=network
+    build-commands:
+      - "pip3 install --prefix=${FLATPAK_DEST} pydbus"
+
   - name: python-xlib
     buildsystem: simple
     build-options:

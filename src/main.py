@@ -1,50 +1,81 @@
-# main.py
-#
-# Copyright 2021 adi
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Adi Hezral <hezral@gmail.com>
 
 import sys
+import os
+
 import gi
-
 gi.require_version('Gtk', '3.0')
-
-from gi.repository import Gtk, Gio
+gi.require_version('Granite', '1.0')
+gi.require_version('Gst', '1.0')
+from gi.repository import Gtk, Gio, Granite, Gdk, GLib
 
 from .window import SuspendedWindow
+
+from .suspender_manager import SuspenderManager
 from .app_manager import AppManager
 from . import utils
 
 class Application(Gtk.Application):
+
+    app_id = "com.github.hezral.suspended"
+    gio_settings = Gio.Settings(schema_id=app_id)
+    gtk_settings = Gtk.Settings().get_default()
+    granite_settings = Granite.Settings.get_default()
+
+    utils = utils
+
     def __init__(self):
-        super().__init__(application_id='com.github.hezral.suspended',
+        super().__init__(application_id=self.app_id,
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
 
-        self.utils = utils
-        self.app_manager = AppManager(gtk_application=self)
+    def do_activate(self):
+        self.window = self.props.active_window
+        if not self.window:
+            self.window = SuspendedWindow(application=self)
+        self.window.present()
 
+        self.apps_manager = AppManager(gtk_application=self)
+
+    def do_startup(self):
+        Gtk.Application.do_startup(self)
+        
+        # Support quiting app using Super+Q
+        quit_action = Gio.SimpleAction.new("quit", None)
+        quit_action.connect("activate", self.on_quit_action)
+        self.add_action(quit_action)
+        self.set_accels_for_action("app.quit", ["<Ctrl>Q", "Escape"])
+
+        prefers_color_scheme = self.granite_settings.get_prefers_color_scheme()
+        self.gtk_settings.set_property("gtk-application-prefer-dark-theme", prefers_color_scheme)
+        self.granite_settings.connect("notify::prefers-color-scheme", self.on_prefers_color_scheme)
+
+        if "io.elementary.stylesheet" not in self.gtk_settings.props.gtk_theme_name:
+            self.gtk_settings.set_property("gtk-theme-name", "io.elementary.stylesheet.blueberry")
+
+        # set CSS provider
         provider = Gtk.CssProvider()
-        provider.load_from_path("data/application.css")
+        provider.load_from_path(os.path.join(os.path.dirname(__file__), "data", "application.css"))
         Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
-    def do_activate(self):
-        win = self.props.active_window
-        if not win:
-            win = SuspendedWindow(application=self)
-        win.present()
+        # prepend custom path for icon theme
+        self.icon_theme = Gtk.IconTheme.get_default()
+        self.icon_theme.prepend_search_path("/run/host/usr/share/pixmaps")
+        self.icon_theme.prepend_search_path("/run/host/usr/share/icons")
+        self.icon_theme.prepend_search_path("/var/lib/flatpak/exports/share/icons")
+        self.icon_theme.prepend_search_path(os.path.join(GLib.get_home_dir(), ".local/share/flatpak/exports/share/icons"))
+        self.icon_theme.prepend_search_path(os.path.join(os.path.dirname(__file__), "data", "icons"))
+
+    def on_quit_action(self, action, param):
+        if self.window is not None:
+            self.window.destroy()
+
+    def on_prefers_color_scheme(self, *args):
+        prefers_color_scheme = self.granite_settings.get_prefers_color_scheme()
+        self.gtk_settings.set_property("gtk-application-prefer-dark-theme", prefers_color_scheme)
 
 
 def main(version):
     app = Application()
+    print(version)
     return app.run(sys.argv)
