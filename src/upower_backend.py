@@ -25,3 +25,24 @@ class UpowerBackend(GObject.GObject):
 upower = UpowerBackend()
 
 upower.is_on_battery()
+
+
+class FileManagerBackend(GObject.GObject):
+    def __init__(self):
+        GObject.GObject.__init__(self)
+
+        self.bus = SessionBus()
+        # self.proxy = self.bus.get("org.freedesktop.FileManager1", "/org/freedesktop/FileManager1")
+        self.proxy = self.bus.get(".FileManager1")
+
+    def show_files_in_file_manager(self):
+        uri = Gio.File.new_for_path('/home/adi/Downloads/logo.png')
+        print(uri.get_uri())
+        self.proxy.ShowItems([uri.get_uri()], "")
+
+    def show_folders_in_file_manager(self):
+        ...
+
+file_manager = FileManagerBackend()
+
+file_manager.show_files_in_file_manager()

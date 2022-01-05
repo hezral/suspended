@@ -155,13 +155,8 @@ class SuspendedWindow(Handy.ApplicationWindow):
         
         if action == "update":
             app_list_item = [child for child in self.app_list.get_children() if child.get_child().app_object.name == app_object.name][0]
-            # app_list_item.get_child().show_all()
-            # app_list_item.show_all()
             app_list_item.destroy()
             self.app_list.insert(AppListItem(app_object), 0)
-
-            # self.app_list.invalidate_headers()
-            # self.app_list.invalidate_sort()
 
         self.app_list.show_all()
 
@@ -252,18 +247,18 @@ class AppListItem(Gtk.Grid):
         self.grid_top.attach(self.app_icon, 0, 0, 1, 1)
         self.grid_top.attach(self.app_name, 1, 0, 1, 1)
 
-        enable_label = Gtk.Label("Enable: ")
+        enable_label = Gtk.Label("Enabled: ")
         enable_label.props.expand = True
         enable_label.props.halign = Gtk.Align.END
-        # enable_label.props.valign = Gtk.Align.START
 
-        self.enable_suspend = Gtk.Switch()
-        self.enable_suspend.props.can_focus = False
-        self.enable_suspend.props.valign = Gtk.Align.CENTER
-        self.enable_suspend.props.halign = Gtk.Align.START
-        self.enable_suspend.set_size_request(32, -1)
-        self.enable_suspend.get_style_context().add_class("miniswitch")
-        self.enable_suspend.connect("notify::active", self.toggle_enable_suspend)
+        self.enable_suspend_switch = Gtk.Switch()
+        self.enable_suspend_switch.props.can_focus = False
+        self.enable_suspend_switch.props.valign = Gtk.Align.CENTER
+        self.enable_suspend_switch.props.halign = Gtk.Align.START
+        self.enable_suspend_switch.set_size_request(32, -1)
+        self.enable_suspend_switch.get_style_context().add_class("miniswitch")
+        self.enable_suspend_switch.props.active = self.app_object.enable_suspend
+        self.enable_suspend_switch.connect("notify::active", self.toggle_enable_suspend)
         
         self.suspend_label = Gtk.Label("Suspend: ")
         self.suspend_label.props.expand = True
@@ -319,7 +314,7 @@ class AppListItem(Gtk.Grid):
         self.grid_bottom.props.halign = Gtk.Align.START
 
         self.grid_bottom.attach(enable_label, 0, 0, 1, 1)
-        self.grid_bottom.attach(self.enable_suspend, 1, 0, 1, 1)
+        self.grid_bottom.attach(self.enable_suspend_switch, 1, 0, 1, 1)
 
         self.grid_bottom.attach(self.suspend_label, 0, 1, 1, 2)
         self.grid_bottom.attach(self.suspend_delay_grid, 1, 1, 2, 1)
@@ -352,8 +347,6 @@ class AppListItem(Gtk.Grid):
             self.persistent.props.sensitive = False
 
     def toggle_enable_suspend(self, switch, active):
-        main_window = self.get_toplevel()
-        app = main_window.app
         if switch.get_active():
             self.suspend_label.props.sensitive = True
             self.suspend_delay_grid.props.sensitive = True
@@ -363,7 +356,6 @@ class AppListItem(Gtk.Grid):
             self.settings_label.props.sensitive = True
             self.persistent.props.sensitive = True
             self.app_object.enable_suspend = True
-            # app.apps_manager.last_running_apps[self.app_object.name].enable_suspend = True
         else:
             self.suspend_label.props.sensitive = False
             self.suspend_delay_grid.props.sensitive = False
@@ -373,10 +365,6 @@ class AppListItem(Gtk.Grid):
             self.settings_label.props.sensitive = False
             self.persistent.props.sensitive = False
             self.app_object.enable_suspend = False
-            # app.apps_manager.last_running_apps[self.app_object.name].enable_suspend = False
-        print("self.app_object.enable_suspend", self.app_object.enable_suspend)
-        print("app.apps_manager.last_running_apps[self.app_object.name].enable_suspend", app.apps_manager.last_running_apps[self.app_object.name].enable_suspend)
-        print("switch", switch.get_active())
 
     def toggle_app_settings(self):
         if self.revealer.get_child_revealed():
@@ -386,5 +374,5 @@ class AppListItem(Gtk.Grid):
         main_window = self.get_toplevel()
         app = main_window.app
 
-        print("self.app_object.enable_suspend", self.app_object.enable_suspend)
-        print("app.apps_manager.last_running_apps[self.app_object.name].enable_suspend", app.apps_manager.last_running_apps[self.app_object.name].enable_suspend)
+        # print("self.app_object.enable_suspend", self.app_object.enable_suspend)
+        # print("app.apps_manager.last_running_apps[self.app_object.name].enable_suspend", app.apps_manager.last_running_apps[self.app_object.name].enable_suspend)

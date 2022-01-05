@@ -31,8 +31,8 @@ class AppManager():
         GLib.timeout_add(5000, self.initialize_event_handling, None) #delay to avoid clash with poll_status
 
     def initialize_event_handling(self, *args):
-        self.screen.connect("application-opened", self.poll_status)
-        self.screen.connect("application-closed", self.poll_status)
+        self.screen.connect("application-opened", self.on_application_closed)
+        self.screen.connect("application-closed", self.on_application_opened)
         self.screen.connect("active-window-changed", self.on_active_window_changed)
         print(datetime.now(), "app_manager: event handling started")
 
@@ -65,7 +65,8 @@ class AppManager():
 
         def init_manager():
             while True:  
-                self.poll_status(event="main-loop")
+                GLib.idle_add(self.poll_status, ("main-loop"))
+                # self.poll_status(event="main-loop")
                 if self.stop_thread:
                     break
                 time.sleep(self.polling_interval)
@@ -128,10 +129,10 @@ class AppManager():
 
             if len(modified) != 0:
                 for x in modified:
-                    self.last_running_apps[x] = self.current_running_apps[x]
-                    self.app.window.update_app_list(self.last_running_apps[x], "update")
                     self.update_app_obj(self.last_running_apps[x], self.current_running_apps[x])
-            # print("modified: ",modified, len(modified))
+                    # self.last_running_apps[x] = self.current_running_apps[x]
+                    self.app.window.update_app_list(self.last_running_apps[x], "update")
+            print("modified: ", len(modified))
 
             # print("same: ",same, len(same))
 
@@ -145,6 +146,12 @@ class AppManager():
             # app = self.last_running_apps[key]
             # print("app:{0}, pid:{1}, proc_state:{2}, window_id:{3}".format(app.name, app.pid, app.proc_state, app.proc_state_name))
         # print("--")
+
+    def on_application_closed(self, screen, app):
+        self.poll_status(event="application-closed")
+
+    def on_application_opened(self, screen, app):
+        self.poll_status(event="application-opened")
 
     def on_active_window_changed(self, *args):
         self.poll_status(event="active-window-changed")
@@ -168,9 +175,17 @@ class AppManager():
     def update_app_obj(self, app_obj1, app_obj2):
         from dataclasses import field, fields
 
+        session_settings = [
+                            "proc_state",
+                            "proc_state_name",
+                            "suspended_timestamp",
+                            "suspended",
+                            ]
+
         for field1 in fields(app_obj1.__class__):
             for field2 in fields(app_obj2.__class__):
-                if getattr(app_obj1, field1.name) != getattr(app_obj2, field2.name):
-                    print(app_obj1.name, getattr(app_obj1, field1.name))
-                    print(app_obj2.name, getattr(app_obj2, field2.name))
-                # setattr(app_obj1, field.name, getattr(app_obj2, field.name))
+                if field1.name in session_settings:
+                    if field1.name == field2.name:
+                        if getattr(app_obj1, field1.name) != getattr(app_obj2, field2.name):
+                            setattr(app_obj1, field1.name, getattr(app_obj2, field2.name))
+

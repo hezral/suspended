@@ -360,10 +360,14 @@ def get_running_apps():
                                         running_apps[app_name_ori] = [app_icon_ori, startup_wm_class_ori, no_display, desktop_file_path_ori, app_exec, flatpak, wm_class, wm_name, workspace_n, window_id, pid, proc_state]
                                         break
         
+        display = None
+        root = None
         return running_apps
 
     except Xlib.error.XError: #simplify dealing with BadWindow
         print("badwindow")
+        display = None
+        root = None
         return None
 
 def get_active_app_using_active_window():
@@ -496,10 +500,13 @@ def get_active_app_using_active_window():
                                     if wm_class_subkey.lower() == app_name or wm_class_subkey.lower() == startup_wm_class or wm_class_subkey.lower() in app_icon:
                                         running_apps[app_name_ori] = [app_icon_ori, startup_wm_class_ori, no_display, desktop_file_path_ori, app_exec, flatpak, wm_class, wm_name, workspace_n, window_id, pid, proc_state]
                                         break
-        
+        display = None
+        root = None
         return running_apps
 
     except Xlib.error.XError: #simplify dealing with BadWindow
+        display = None
+        root = None
         return None
 
 def get_gdk_window(window_id):
